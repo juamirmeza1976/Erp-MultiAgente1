@@ -1,0 +1,159 @@
+openapi: 3.0.0
+info:
+  title: Servicio de Inventario
+  version: 1.0.0
+  description: API para la gestión de inventario, incluyendo productos y stock.
+paths:
+  /productos:
+    get:
+      summary: Listar todos los productos
+      responses:
+        '200':
+          description: Una lista de productos.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Producto'
+    post:
+      summary: Crear un nuevo producto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductoInput'
+      responses:
+        '201':
+          description: Producto creado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Producto'
+        '400':
+          description: Datos de entrada inválidos.
+  /productos/{productoId}:
+    get:
+      summary: Obtener un producto por su ID
+      parameters:
+        - name: productoId
+          in: path
+          required: true
+          description: ID del producto a obtener.
+          schema:
+            type: string # O integer, dependiendo de cómo se manejen los IDs
+      responses:
+        '200':
+          description: Detalles del producto.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Producto'
+        '404':
+          description: Producto no encontrado.
+    put:
+      summary: Actualizar un producto existente
+      parameters:
+        - name: productoId
+          in: path
+          required: true
+          description: ID del producto a actualizar.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductoInput'
+      responses:
+        '200':
+          description: Producto actualizado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Producto'
+        '404':
+          description: Producto no encontrado.
+    delete:
+      summary: Eliminar un producto
+      parameters:
+        - name: productoId
+          in: path
+          required: true
+          description: ID del producto a eliminar.
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Producto eliminado exitosamente.
+        '404':
+          description: Producto no encontrado.
+
+components:
+  schemas:
+    Producto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Identificador único del producto (generado por el sistema).
+          readOnly: true
+        nombre:
+          type: string
+          description: Nombre del producto.
+        descripcion:
+          type: string
+          nullable: true
+          description: Descripción detallada del producto.
+        precio_costo:
+          type: number
+          format: float
+          description: Precio de costo del producto.
+        precio_venta:
+          type: number
+          format: float
+          description: Precio de venta del producto.
+        stock_actual:
+          type: integer
+          description: Cantidad actual en stock.
+          default: 0
+        categoria:
+          type: string
+          nullable: true
+          description: Categoría a la que pertenece el producto.
+        # Considerar campos adicionales como moneda, unidad_medida, etc.
+        # basados en los requisitos detallados.
+        # Por ahora, se mantiene simple.
+    ProductoInput: # Esquema para la entrada de creación/actualización
+      type: object
+      required:
+        - nombre
+        - precio_costo
+        - precio_venta
+      properties:
+        nombre:
+          type: string
+          description: Nombre del producto.
+        descripcion:
+          type: string
+          nullable: true
+          description: Descripción detallada del producto.
+        precio_costo:
+          type: number
+          format: float
+          description: Precio de costo del producto.
+        precio_venta:
+          type: number
+          format: float
+          description: Precio de venta del producto.
+        stock_actual:
+          type: integer
+          description: Cantidad actual en stock.
+          default: 0
+        categoria:
+          type: string
+          nullable: true
+          description: Categoría a la que pertenece el producto.
