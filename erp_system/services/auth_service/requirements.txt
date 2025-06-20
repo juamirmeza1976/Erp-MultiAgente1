@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+psycopg2-binary
+SQLAlchemy
+alembic
+pydantic
+pydantic-settings
+python-jose[cryptography] # Para JWT
+passlib[bcrypt]         # Para hashing de contraseñas
+email-validator         # Para Pydantic EmailStr
+python-multipart        # Para FastAPI form data (OAuth2PasswordRequestForm)
+pytest
+httpx

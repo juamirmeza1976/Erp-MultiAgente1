@@ -1,0 +1,143 @@
+openapi: 3.0.0
+info:
+  title: Servicio de Autenticación y Autorización (Auth Service)
+  version: 1.0.0
+  description: API para gestionar usuarios, autenticación (JWT) y autorización.
+paths:
+  /auth/register:
+    post:
+      summary: Registrar un nuevo usuario
+      tags:
+        - Autenticación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: Usuario creado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Datos de entrada inválidos o usuario ya existe.
+  /auth/login:
+    post:
+      summary: Iniciar sesión para obtener un token JWT
+      tags:
+        - Autenticación
+      requestBody:
+        required: true
+        content:
+          application/json: # Podría ser application/x-www-form-urlencoded para OAuth2
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login exitoso, devuelve token de acceso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '401':
+          description: Credenciales incorrectas.
+  /users/me:
+    get:
+      summary: Obtener información del usuario actualmente autenticado
+      tags:
+        - Usuarios
+      security:
+        - bearerAuth: [] # Indica que este endpoint requiere autenticación Bearer
+      responses:
+        '200':
+          description: Información del usuario.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: No autenticado o token inválido.
+
+components:
+  schemas:
+    UserCreate:
+      type: object
+      required:
+        - username
+        - email
+        - password
+      properties:
+        username:
+          type: string
+          description: Nombre de usuario único.
+        email:
+          type: string
+          format: email
+          description: Correo electrónico único del usuario.
+        password:
+          type: string
+          format: password
+          description: Contraseña del usuario.
+        full_name:
+          type: string
+          nullable: true
+          description: Nombre completo del usuario.
+
+    User: # Esquema para mostrar información del usuario
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Identificador único del usuario.
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+          default: true
+        # roles:
+        #   type: array
+        #   items:
+        #     type: string
+        #   description: Roles asignados al usuario. (Para futura implementación)
+
+    LoginRequest:
+      type: object
+      required:
+        - username # o email
+        - password
+      properties:
+        username: # Podría ser 'email' o permitir ambos
+          type: string
+          description: Nombre de usuario o email para el login.
+        password:
+          type: string
+          format: password
+
+    Token:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: Token de acceso JWT.
+        token_type:
+          type: string
+          default: bearer
+          description: Tipo de token (siempre 'bearer').
+        # refresh_token: (Para futura implementación)
+        #   type: string
+
+  securitySchemes:
+    bearerAuth: # Define el esquema de seguridad Bearer (JWT)
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
